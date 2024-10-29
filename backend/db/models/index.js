@@ -1,19 +1,10 @@
-//IMPORTS AND REQUIREMENTS
-
-//catching common coding errors and preventing the use of certain error-prone features
 'use strict';
 
-//used for reading files
 const fs = require('fs');
-//used for handling file paths
 const path = require('path');
-//Imports the Sequelize library.
 const Sequelize = require('sequelize');
-//provides information about the current Node.js process.
 const process = require('process');
-//Gets the base filename of the current file (without the directory path)
 const basename = path.basename(__filename);
-//Sets the environment.
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../../config/database.js')[env];
 const db = {};
