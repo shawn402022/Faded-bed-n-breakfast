@@ -1,16 +1,19 @@
+//PRODUCTION/DEVELOPMENT VARIABLES FOR DB
+
+//imports .env variables
 const config = require('./index');
 
 module.exports = {
   development: {
     storage: config.dbFile,
-    dialect: "sqlite",
+    dialect: "sqlite", // <--- local DB used for development
     seederStorage: "sequelize",
     logQueryParameters: true,
     typeValidation: true
   },
   production: {
     use_env_variable: 'DATABASE_URL',
-    dialect: 'postgres',
+    dialect: 'postgres', // <--- online DB for deployment
     seederStorage: 'sequelize',
     dialectOptions: {
       ssl: {
