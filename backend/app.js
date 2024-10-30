@@ -29,7 +29,6 @@ app.use(cookieParser());
 
 app.use(express.json()); //parsing JSON bodies of req with content-type of "application/json"
 
-app.use(routes); //connect all routes to app
 
 
 
@@ -59,4 +58,8 @@ app.use(
       }
     })
   );
+
+//This line MUST be after csurf
+app.use(routes); //connect all routes to app
+
 module.exports = app;
