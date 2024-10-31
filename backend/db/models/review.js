@@ -19,7 +19,13 @@ module.exports = (sequelize, DataTypes) => {
           foreignKey:'reviewId',
           as: 'ReviewImages'
         }
-      )
+      );
+      Reviews.belongsTo(models.Spot,
+        {
+          foreignKey:'spotId',
+          as: 'ReviewSpot'
+        }
+      );
     }
   }
   Review.init({
@@ -31,13 +37,21 @@ module.exports = (sequelize, DataTypes) => {
     },
     spotId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'Spots',
+        key: 'id'
+      }
     },
     userId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id'
+      }
     },
-    review: DataTypes.STRING,
+    review: DataTypes.STRING(250),
     stars: DataTypes.INTEGER
   }, {
     sequelize,

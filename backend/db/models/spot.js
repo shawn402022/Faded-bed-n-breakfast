@@ -19,13 +19,19 @@ module.exports = (sequelize, DataTypes) => {
           foreignKey:'spotId',
           as: 'SpotImages'
         }
-      )
+      );
       Spot.hasMany(models.Reviews,
         {
           foreignKey:'spotId',
           as: 'Reviews'
         }
-      )
+      );
+      Spot.hasMany(models.Booking,
+        {
+          foreignKey:'spotId',
+          as: 'SpotBooking'
+        }
+      );
     }
   }
   Spot.init({
@@ -37,7 +43,11 @@ module.exports = (sequelize, DataTypes) => {
     },
     ownerId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id'
+      }
     },
     address: DataTypes.STRING(256),
     city: DataTypes.STRING(256),
