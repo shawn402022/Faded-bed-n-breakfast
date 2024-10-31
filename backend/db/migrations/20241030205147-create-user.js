@@ -28,6 +28,12 @@ module.exports = {
         type: Sequelize.STRING.BINARY,
         allowNull: false
       },
+      firstName:{
+        type:Sequelize.STRING(256)
+      },
+      lastName:{
+       type:Sequelize.STRING(256)
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
