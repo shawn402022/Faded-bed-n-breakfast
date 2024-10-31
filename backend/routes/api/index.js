@@ -1,14 +1,23 @@
+//IMPORTS AND REQUIREMENTS
 
 const sessionRouter = require('./session.js');
+
 const usersRouter = require('./users.js');
+
 const router = require('express').Router();
 
+const { setTokenCookie } = require('../../utils/auth.js');
+
+const { User } = require('../../db/models');
+
+const { restoreUser } = require('../../utils/auth.js');
+
+//API FOLDER CONNECTION TEST (front-end test for MOD5 )
 router.post('/test', function(req, res) {
     res.json({ requestBody: req.body });
 });
 
-const { setTokenCookie } = require('../../utils/auth.js');
-const { User } = require('../../db/models');
+//SET TOKEN COOKIE TEST (from utils/auth.js)
 router.get('/set-token-cookie', async (_req, res) => {
   const user = await User.findOne({
     where: {
@@ -19,11 +28,8 @@ router.get('/set-token-cookie', async (_req, res) => {
   return res.json({ user: user });
 });
 
+//RESTORE-USER TEST (from utils/auth.js)
 //!unsure about placement of restore user
-const { restoreUser } = require('../../utils/auth.js');
-
-router.use(restoreUser);
-
 router.get(
   '/restore-user',
   (req, res) => {
@@ -31,12 +37,11 @@ router.get(
   }
 );
 
+//MIDDLEWARE CONNECTIONS
 router.use(restoreUser);
-
+router.use(restoreUser);
 router.use('/session', sessionRouter);
-
 router.use('/users', usersRouter);
-
 router.post('/test', (req, res) => {
   res.json({ requestBody: req.body });
 });

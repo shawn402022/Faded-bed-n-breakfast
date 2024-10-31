@@ -1,21 +1,23 @@
-// Import environment variables
+//STARTING POINT FOR EXPRESS SERVER (executable script for starting servers)
+
+//loads environment variables from a .env file into process.env
 require('dotenv').config();
-
+//imports the listening port variable from config/index.js
 const { port } = require('../config');
-
+//imports all routes, middleware and anything else that goes through the app.js file
 const app = require('../app');
+//imports all sequelize database models
 const db = require('../db/models');
 
-// Check the database connection before starting the app
 db.sequelize
-  .authenticate()
+  .authenticate() // <---- Database Connection Check, Attempts to authenticate with the database using Sequelize
   .then(() => {
     console.log('Database connection success! Sequelize is ready to use...');
 
     // Start listening for connections
     app.listen(port, () => console.log(`Listening on port ${port}...`));
   })
-  .catch((err) => {
+  .catch((err) => { // <-- error handling if server cannot start
     console.log('Database connection failure.');
     console.error(err);
   });

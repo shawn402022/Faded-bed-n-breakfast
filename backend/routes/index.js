@@ -1,6 +1,13 @@
-// backend/routes/index.js
+// IMPORTS AND REQUIREMENTS
+
+//imports the Express.js framework, which is used to create web applications and APIs in Node.js
 const express = require('express');
+//creates router object capable of performing middleware and routing functions
 const router = express.Router();
+//import api folder
+const apiRouter = require('./api');
+//activates APi route
+router.use('/api', apiRouter);
 
 router.get('/hello/world', function(req, res) {
   res.cookie('XSRF-TOKEN', req.csrfToken());
@@ -15,13 +22,5 @@ router.get("/api/csrf/restore", (req, res) => {
     'XSRF-Token': csrfToken
   });
 });
-
-// backend/routes/index.js
-// ...
-const apiRouter = require('./api');
-
-router.use('/api', apiRouter);
-// ...
-
 
 module.exports = router;

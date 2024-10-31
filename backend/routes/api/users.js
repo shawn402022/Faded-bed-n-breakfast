@@ -1,8 +1,14 @@
-const express = require('express')
-const bcrypt = require('bcryptjs');
+//IMPORTS AND REQUIREMENTS
 
+//imports the Express.js framework, which is used to create web applications and APIs in Node.js
+const express = require('express');
+//Used for hashing passwords
+const bcrypt = require('bcryptjs');
+//imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
+//imports user model
 const { User } = require('../../db/models');
+//creates a new router for this route
 const router = express.Router();
 
 // Sign up
@@ -26,5 +32,5 @@ router.post(
       });
     }
   );
-  
+
 module.exports = router;
