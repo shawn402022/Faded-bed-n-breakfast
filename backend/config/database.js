@@ -12,7 +12,7 @@ module.exports = {
     typeValidation: true
   },
   production: {
-    use_env_variable: 'DATABASE_URL',
+    use_env_variable: 'postgresql://app_academy_projects_7ywb_user:nBOxFoRL4olnyYh1b4AQQ0ABLZKLXJ9j@dpg-cskf320gph6c73aakqhg-a/app_academy_projects_7ywb',
     dialect: 'postgres', // <--- online DB for deployment
     seederStorage: 'sequelize',
     dialectOptions: {
