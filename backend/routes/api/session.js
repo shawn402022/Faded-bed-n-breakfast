@@ -44,12 +44,12 @@ router.post(
       err.status = 400;
       err.title = 'validation error';
       err.errors = {"credential": "Email or username is required"}
-    } 
+    }
     if (!password){
       err.status = 400;
       err.title = 'validation error';
       err.errors = {"password": "Password is required"}
-    } 
+    }
     const user = await User.unscoped().findOne({
       where: {
         [Op.or]: {
@@ -100,13 +100,15 @@ router.get(
       if (user) {
         const safeUser = {
           id: user.id,
+          fistName:user.firstName,
+          lastName:user.lastName,
           email: user.email,
           username: user.username,
         };
-        return res.json({
+        return res.status(200).json({
           user: safeUser
         });
-      } else return res.json({ user: null });
+      } else return res.status(200).json({ user: null });
     }
   );
 

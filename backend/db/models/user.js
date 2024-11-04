@@ -28,8 +28,13 @@ module.exports = (sequelize, DataTypes) => {
       username: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique:{
+          "username":"user with that username already exists"
+        },
         validate: {
+          notEmpty:{
+            "username":"username is required"
+          },
           len: [4, 30],
           isNotEmail(value) {
             if (Validator.isEmail(value)) {
@@ -41,8 +46,13 @@ module.exports = (sequelize, DataTypes) => {
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
+        unique: {
+          "email":"user with that email already exists"
+        },
         validate: {
+          notEmpty: {
+            "email": " invalid email"
+          },
           len: [3, 256],
           isEmail: true,
         },
@@ -55,11 +65,23 @@ module.exports = (sequelize, DataTypes) => {
         },
       },
       firstName:{
+        allowNull:false,
         type:DataTypes.STRING(250),
+        validate:{
+          notEmpty: {
+            "firstName": "first name is required"
+          },
+        },
       },
       lastName:{
-        type:DataTypes.STRING(250)
-      }
+        allowNull:false,
+        type:DataTypes.STRING(250),
+        validate:{
+          notEmpty: {
+            "lastName":"last name is required"
+          },
+        },
+      },
     },
     {
       sequelize,
