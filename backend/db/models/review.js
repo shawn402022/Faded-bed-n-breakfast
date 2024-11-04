@@ -29,12 +29,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Review.init({
-    id: {
-      type:DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-      unique: true
-    },
     spotId: {
       type: DataTypes.INTEGER,
       allowNull: false,
