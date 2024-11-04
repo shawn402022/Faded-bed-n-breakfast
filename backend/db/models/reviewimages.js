@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       ReviewImages.belongsTo(
-        models.Reviews,
+        models.Review,
         {
           foreignKey:'reviewId',
           as:'Review'
@@ -19,7 +19,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   ReviewImages.init({
-    id: DataTypes.INTEGER,
+    id: {
+      type:DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false,
+      unique: true
+    },
     reviewId: {
       type: DataTypes.INTEGER,
       references: {

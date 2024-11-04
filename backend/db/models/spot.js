@@ -14,13 +14,13 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'ownerId',
         as: 'SpotUser'
       });
-      Spot.hasMany(models.SportImages,
+      Spot.hasMany(models.SpotImage,
         {
           foreignKey:'spotId',
           as: 'SpotImages'
         }
       );
-      Spot.hasMany(models.Reviews,
+      Spot.hasMany(models.Review,
         {
           foreignKey:'spotId',
           as: 'Reviews'
