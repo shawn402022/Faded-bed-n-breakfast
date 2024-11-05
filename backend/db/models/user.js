@@ -37,21 +37,7 @@ module.exports = (sequelize, DataTypes) => {
               throw new Error('Username is required');
             }
           },
-      //    validUserName(value) {
-           // console.log(`THIS IS VALUE ${value}`)
-      //      if(!value){
-      //        console.log("TEST TEST TEST")
-      //        throw {
-      //          message:"username is NOT required",
-      //          code:400,
-      //          field:"username"
-      //        }
-      //      }
-      //    },
-          //notEmpty:{
-          //  msg:"username is required"
-          //},
-          //len: [4, 30],
+          len: [4, 30],
           isNotEmail(value) {
             if (Validator.isEmail(value)) {
               throw new Error('Cannot be an email.');
