@@ -46,10 +46,28 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     review: DataTypes.STRING(250),
-    stars: DataTypes.INTEGER
-  }, {
+    stars: DataTypes.DECIMAL(2,1)
+  }
+  , {
     sequelize,
     modelName: 'Review',
   });
+
+  //adding hooks for the avgSpotRating function in Spot model 
+  Review.afterCreate(async (review) => { 
+    const spot = await review.getSpot();
+    await spot.findAverageRating();
+  });
+  
+  Review.afterUpdate(async (review) => {
+    const spot = await review.getSpot();
+    await spot.findAverageRating();
+  });
+  
+  Review.afterDestroy(async (review) => {
+    const spot = await review.getSpot();
+    await spot.findAverageRating();
+  });
+  
   return Review;
 };

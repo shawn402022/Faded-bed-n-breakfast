@@ -15,10 +15,7 @@ const router = express.Router();
 // ...
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
-// ...
 
-// backend/routes/api/users.js
-// ...
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
