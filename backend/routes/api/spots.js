@@ -77,18 +77,38 @@ router.post('/new', requireAuth, validateCreate, async (req,res) =>{
 })
 
 //Add an Image to a Spot based on the Spot's id
-router.post('/:spotId/images',requireAuth, restoreUser,(req,res)=>{
+router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
+    //check if spot exits
+    const spot = await Spot.findByPk(req.params.spotId);
+    if(!spot){
+        return res.status(404).json({"message": "Spot couldn't be found"} );
+    }
+    //verify spot belongs to user
+    if (spot.ownerId !== req.user.id){
+        return res.status(401).json('Unauthorized');
+    }
     //grab inputs from req.body
-    
+    const {url, preview} = req.body;
+    //grab user ID
+    const spotId = req.params.spotId
+    //create new spotImage
+    const newImage = await SpotImage.create({url, preview, spotId});
+    //response
+    const response = {
+        id: newImage.id,
+        url: newImage.url,
+        preview: newImage.preview
+    }
+    res.status(201).json(response);
 })
 
 //get all spots
 router.get('/', async (req,res)=> {
 
     //get all spots
-    const allSpots = await Spot.findAll()
+    const allSpots = await Spot.findAll();
 
-    res.status(200).json(allSpots)
+    res.status(200).json(allSpots);
 })
 
 //get details of a Spot from an Id
@@ -101,10 +121,7 @@ router.get('/:spotId', async (req,res) => {
             {model: Review, as: 'Reviews', attributes: ['id', 'stars']},
             {model: User, as: 'SpotUser', attributes:['id', 'firstName', 'lastName']}
         ]
-    })
-
-
-    console.log(`TEST TEST TEST ${spotDetails.owner}`)
+    });
 
     if(!spotDetails)res.status(404).json({message:"Spot couldn't be found"})
 
@@ -120,4 +137,5 @@ router.get('/:spotId', async (req,res) => {
 router.put('/spotId',async(req, res) => {
     const spotIdParam = req.params.spotId;
 } )
+
 module.exports = router;
