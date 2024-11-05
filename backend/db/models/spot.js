@@ -21,22 +21,24 @@ module.exports = (sequelize, DataTypes) => {
       await this.save();
     }
 
-    async findAvgRating(){
-      //get all reviews for the spot
+    async findAvgRating() {
       const allReviews = await this.getReviews();
-      //if their are reviews
-      if (allReviews.length > 0){ //<-- cannot use !allReviews because an emty array returns truthy
-        //get total sum of all reviews
-        const total = allReviews.reduce((sum,review) => 
-          sum + review.stars, 0)
-        //find the avg and assign it to the attribute
-        this.avgRating = Number((total / allReviews.length).toFixed(1));// <-- toFixed returns a string
-        //save changes made to DB
-        await this.save();
+    
+      if (allReviews.length > 0) {
+        const total = allReviews.reduce((sum, review) => sum + review.stars, 0);
+        const avgRating = Number((total / allReviews.length).toFixed(1));
+    
+        // Only update if avgRating has changed
+        if (this.avgRating !== avgRating) {
+          this.avgRating = avgRating; // Update average rating
+          await this.save(); // Save changes made to DB
+        }
       } else {
-        //set default value of null if no reviews
-        this.avgRating = null;
-        await this.save();
+        // Set default value of null if no reviews
+        if (this.avgRating !== null) { // Only save if necessary
+          this.avgRating = null; 
+          await this.save(); 
+        }
       }
     }
 
@@ -78,14 +80,35 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(256),
       unique: {msg: 'address must be unique'}
     },
-    city: DataTypes.STRING(256),
-    state: DataTypes.STRING(256),
-    country: DataTypes.STRING(256),
-    lat: DataTypes.FLOAT,
-    lng: DataTypes.FLOAT,
-    name: DataTypes.STRING(256),
-    description: DataTypes.STRING(256),
-    price: DataTypes.FLOAT,
+    city: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+    },
+    state: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+    },
+    country: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+    },
+    lat: {
+      type: DataTypes.STRING(256),
+    },
+    lng: {
+      type: DataTypes.STRING(256),
+    },
+    name: {
+      type: DataTypes.STRING(50),
+    },
+    description: {
+      type: DataTypes.STRING(256),
+      allowNull: false,
+    },
+    price: {
+      type: DataTypes.DECIMAL(10,2),
+      allowNull: false,
+    },
     avgRating: {
       type: DataTypes.DECIMAL(2,1),
       validate:{
@@ -105,17 +128,17 @@ module.exports = (sequelize, DataTypes) => {
   Spot.afterCreate(async (spot) => {
     await spot.findAvgRating();
   });
-  Spot.afterUpdate(async (spot) => {
-    await spot.findAvgRating();
-  });
+  // Spot.afterUpdate(async (spot) => {
+  //   await spot.findAvgRating();
+  // });
 
-  //add preview image
-  Spot.afterCreate(async (spot) => {
-    await spot.assignPreview();
-  });
-  Spot.afterUpdate(async (spot) => {
-    await spot.assignPreview();
-  });
+  // //add preview image
+  // Spot.afterCreate(async (spot) => {
+  //   await spot.assignPreview();
+  // });
+  // Spot.afterUpdate(async (spot) => {
+  //   await spot.assignPreview();
+  // });
 
 
   return Spot;

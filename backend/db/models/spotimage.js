@@ -35,20 +35,20 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   //adding hooks for the avgSpotRating function in Spot model 
-  SpotImage.afterCreate(async (spotImage) => { 
-    const image = await spotImage.getSpot();
-    await image.assignPreview();
-  });
+  // SpotImage.afterCreate(async (spotImage) => { 
+  //   const image = await spotImage.getSpot();
+  //   await image.assignPreview();
+  // });
   
-  SpotImage.afterUpdate(async (spotImage) => { 
-    const image = await spotImage.getSpot();
-    await image.assignPreview();
-  });
+  // SpotImage.afterUpdate(async (spotImage) => { 
+  //   const image = await spotImage.getSpot();
+  //   await image.assignPreview();
+  // });
 
-  SpotImage.afterDestroy(async (spotImage) => { 
-    const image = await spotImage.getSpot();
-    await image.assignPreview();
-  });
+  // SpotImage.afterDestroy(async (spotImage) => { 
+  //   const image = await spotImage.getSpot();
+  //   await image.assignPreview();
+  // });
 
 
   return SpotImage;

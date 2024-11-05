@@ -54,20 +54,20 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   //adding hooks for the avgSpotRating function in Spot model 
-  Review.afterCreate(async (review) => { 
-    const spot = await review.getSpot();
-    await spot.findAverageRating();
-  });
+  // Review.afterCreate(async (review) => { 
+  //   const spot = await review.getSpot();
+  //   await spot.findAverageRating();
+  // });
   
-  Review.afterUpdate(async (review) => {
-    const spot = await review.getSpot();
-    await spot.findAverageRating();
-  });
+  // Review.afterUpdate(async (review) => {
+  //   const spot = await review.getSpot();
+  //   await spot.findAverageRating();
+  // });
   
-  Review.afterDestroy(async (review) => {
-    const spot = await review.getSpot();
-    await spot.findAverageRating();
-  });
+  // Review.afterDestroy(async (review) => {
+  //   const spot = await review.getSpot();
+  //   await spot.findAverageRating();
+  // });
   
   return Review;
 };
