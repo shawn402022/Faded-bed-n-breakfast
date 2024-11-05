@@ -7,15 +7,28 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User } = require('../../db/models');
+const { User, Spot } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
-// backend/routes/api/users.js
-// ...
 const { check } = require('express-validator');
+
 const { handleValidationErrors } = require('../../utils/validation');
 
+//Get all Spots owned by the Current User
+router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
+  //get user id from rq.params
+  const id = req.params.userId
+  //get the users spots
+  console.log('ID = ', id)
+  const foundSpots = await Spot.findAll({
+    where:{ownerId: id}
+  })
+  
+  res.json(foundSpots)
+})
+
+//sign up middleware
 const validateSignup = [
   check('email')
     .exists({ checkFalsy: true })
