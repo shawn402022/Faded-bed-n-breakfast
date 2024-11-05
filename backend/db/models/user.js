@@ -32,10 +32,26 @@ module.exports = (sequelize, DataTypes) => {
           "username":"user with that username already exists"
         },
         validate: {
-          notEmpty:{
-            "username":"username is required"
+          validUserName(value) {
+            if(!value) {
+              throw new Error('Username is required');
+            }
           },
-          len: [4, 30],
+      //    validUserName(value) {
+           // console.log(`THIS IS VALUE ${value}`)
+      //      if(!value){
+      //        console.log("TEST TEST TEST")
+      //        throw {
+      //          message:"username is NOT required",
+      //          code:400,
+      //          field:"username"
+      //        }
+      //      }
+      //    },
+          //notEmpty:{
+          //  msg:"username is required"
+          //},
+          //len: [4, 30],
           isNotEmail(value) {
             if (Validator.isEmail(value)) {
               throw new Error('Cannot be an email.');
@@ -69,7 +85,7 @@ module.exports = (sequelize, DataTypes) => {
         type:DataTypes.STRING(250),
         validate:{
           notEmpty: {
-            "firstName": "first name is required"
+            msg: "first name is required"
           },
         },
       },
@@ -78,7 +94,7 @@ module.exports = (sequelize, DataTypes) => {
         type:DataTypes.STRING(250),
         validate:{
           notEmpty: {
-            "lastName":"last name is required"
+            msg:"last name is required"
           },
         },
       },
