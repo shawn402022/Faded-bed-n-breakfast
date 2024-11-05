@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 //imported from utils/auth.js. setTokenCookie creates JWT token, restoreUsers verifies the token sent in the request
 const { setTokenCookie, restoreUser } = require('../../utils/auth');
 //Import the user model
-const { Spot, Review, SpotImage } = require('../../db/models');
+const { Spot, Review, SpotImage, User } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -25,4 +25,33 @@ router.get('/', async (req,res)=> {
     res.status(200).json(allSpots)
 })
 
+//get details of a Spot from an Id
+router.get('/:spotId', async (req,res) => {
+    const spotIdParam = req.params.spotId;
+
+    const spotDetails = await Spot.findByPk(spotIdParam, {
+        include: [
+            {model:SpotImage, as: 'SpotImages', attributes: ['id', 'url', 'preview'] },
+            {model: Review, as: 'Reviews', attributes: ['id', 'stars']},
+            {model: User, as: 'SpotUser', attributes:['id', 'firstName', 'lastName']}
+        ]
+    })
+
+
+    console.log(`TEST TEST TEST ${spotDetails.owner}`)
+
+    if(!spotDetails)res.status(404).json({message:"Spot couldn't be found"})
+
+    //add numReviews to the response
+    const responseData = spotDetails.toJSON();
+    responseData.numReviews = spotDetails.Reviews.length
+
+    res.status(200).json(responseData)
+
+})
+
+//Edit a spot
+router.put('/spotId',async(req, res) => {
+    const spotIdParam = req.params.spotId;
+} )
 module.exports = router;
