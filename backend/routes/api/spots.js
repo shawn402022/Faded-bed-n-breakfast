@@ -107,16 +107,27 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
 router.get('/:spotId/reviews', async (req,res)=>{
     //get spotId from url
     const id = req.params.spotId;
+    //check if spot exists
+    const checkSpot = await Spot.findByPk(id);
+    
+    if(!checkSpot)res.status(404).json({message:"Spot couldn't be found"})
+    //get all reviews for spot
     const foundReviews = await Review.findAll({
         where: {
             spotId:id
         },
         include: [
             {model: User, as: 'ReviewUser', attributes:['id', 'firstName', 'lastName']},
-            {model:ReviewImages, as: "review", attributes:['id','url']}
+            {model:ReviewImages, as: "ReviewImages", attributes:['id','url']}
         ]
     });
-})
+    
+    //check if reviews exist
+    if(foundReviews.length === 0)res.status(200).json({message:"No reviews for this spot"});
+    
+    //response
+    res.json({Reviews:foundReviews});
+});
 
 //get details of a Spot from an Id
 router.get('/:spotId', async (req,res) => {
@@ -137,8 +148,7 @@ router.get('/:spotId', async (req,res) => {
     responseData.numReviews = spotDetails.Reviews.length
 
     res.status(200).json(responseData)
-
-})
+});
 
 const validateEdit = [
     check('address')
