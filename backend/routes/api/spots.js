@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 //imported from utils/auth.js. setTokenCookie creates JWT token, restoreUsers verifies the token sent in the request
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 //Import the user model
-const { Spot, Review, SpotImage, User } = require('../../db/models');
+const { Spot, Review, SpotImage, User, ReviewImages} = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -103,13 +103,19 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     res.status(201).json(response);
 })
 
-//get all spots
-router.get('/', async (req,res)=> {
-
-    //get all spots
-    const allSpots = await Spot.findAll();
-
-    res.status(200).json(allSpots);
+//Get all Reviews by a Spot's id
+router.get('/:spotId/reviews', async (req,res)=>{
+    //get spotId from url
+    const id = req.params.spotId;
+    const foundReviews = await Review.findAll({
+        where: {
+            spotId:id
+        },
+        include: [
+            {model: User, as: 'ReviewUser', attributes:['id', 'firstName', 'lastName']},
+            {model:ReviewImages, as: "review", attributes:['id','url']}
+        ]
+    });
 })
 
 //get details of a Spot from an Id
@@ -204,5 +210,13 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     return res.status(200).json(spot)
 })
 
+//get all spots
+router.get('/', async (req,res)=> {
+
+    //get all spots
+    const allSpots = await Spot.findAll();
+
+    res.status(200).json(allSpots);
+})
 
 module.exports = router;
