@@ -17,7 +17,7 @@ const { check } = require('express-validator');
 
 const { handleValidationErrors } = require('../../utils/validation');
 
-//Creat A spot Middleware
+//Create A spot Middleware
 const validateCreate = [
     check('address')
         .exists({ checkFalsy: true })
@@ -88,6 +88,7 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
         return res.status(401).json('Unauthorized');
     }
     //grab inputs from req.body
+
     const {url, preview} = req.body;
     //grab user ID
     const spotId = req.params.spotId
@@ -133,9 +134,75 @@ router.get('/:spotId', async (req,res) => {
 
 })
 
+const validateEdit = [
+    check('address')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Street address is required"),
+    check('city')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("city is required"),
+    check('state')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("state is required"),
+    check('country')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("country is required"),
+    check('lat')
+        .optional()
+        .isLength({min: 6})
+        .withMessage("Latitude is not valid"),
+    check('lng')
+        .optional()
+        .isLength({min: 6})
+        .withMessage("Longitude is not valid"),
+    check('description')
+        .optional()
+        .isLength({min: 6})
+        .withMessage("Description is required"),
+    check('name')
+        .optional()
+        .isLength({max:50})
+        .withMessage("Name must be less than 50 "),
+    check('price')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Price per day is required"),
+    handleValidationErrors
+]
+
 //Edit a spot
-router.put('/spotId',async(req, res) => {
+router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     const spotIdParam = req.params.spotId;
+    const {address, city, state, country, lat,lng, name, description, price} = req.body;
+
+    const spot = await Spot.findByPk(spotIdParam);
+
+    if(!spot) {
+        return res.status(404).json({message: "Spot couldn't be found"})
+    }
+
+    //Check if spot belongs to current user
+    if(spot.ownerId !== req.user.id) {
+        return res.status(400).json({message:"bad request"})
+    } else if(!validateCreate) {
+        return res.status(400).json({message:"bad validate"})
+    }
+
+    //Update the spot
+    await spot.update({
+        address, city,
+        state,country,
+        lat, lng,
+        name, description,
+        price
+    });
+
+    return res.status(200).json(spot)
+})
 } )
 
 module.exports = router;
