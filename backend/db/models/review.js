@@ -45,8 +45,14 @@ module.exports = (sequelize, DataTypes) => {
         key: 'id'
       }
     },
-    review: DataTypes.STRING(250),
-    stars: DataTypes.DECIMAL(2,1)
+    review: {
+      type: DataTypes.STRING(250),
+      allowNull: false
+    },
+    stars: {
+      type: DataTypes.DECIMAL(2,1),
+      allowNull: false
+    }
   }
   , {
     sequelize,

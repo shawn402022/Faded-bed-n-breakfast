@@ -129,6 +129,32 @@ router.get('/:spotId/reviews', async (req,res)=>{
     res.json({Reviews:foundReviews});
 });
 
+//Create a Review for a Spot based on the Spot's id
+router.post('/:spotId/reviews', requireAuth, async (req,res)=>{
+    //get spotId from url
+    const spotId = req.params.spotId;
+    //get userId from user
+    const userId = req.user.id;
+    //get inputs from req
+    const {review, stars} = req.body;
+    //create a new review
+    const newReview = await Review.create({spotId, userId, review, stars});
+    
+    //response
+    const response = {
+        id: newReview.id,
+        spotId: newReview.spotId,
+        userId: newReview.userId,
+        review: newReview.review,
+        stars: newReview.stars,
+        createdAt: newReview.createdAt,
+        updatedAt: newReview.updatedAt
+    }
+
+    res.status(201).json(response)
+
+})
+
 //get details of a Spot from an Id
 router.get('/:spotId', async (req,res) => {
     const spotIdParam = req.params.spotId;
