@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User, Spot } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImage } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -24,7 +24,7 @@ router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
   const foundSpots = await Spot.findAll({
     where:{ownerId: id}
   })
-  
+
   res.json(foundSpots)
 })
 
@@ -84,4 +84,31 @@ router.post(
   }
 );
 
-module.exports = router;
+//Get all Reviews of the current user
+router.get('/:userId/reviews', requireAuth, async(req,res) => {
+
+  const userId = req.params.userId
+
+  const reviewDetails = await User.findByPk(userId, {
+    include: [
+      {model:Review, as:'Reviews', attributes:['id', 'userId', 'spotId', 'review', 'stars'],
+        include : [
+          {model:ReviewImage, as : 'ReviewImages', attributes: ['id','url']}
+        ]
+      },
+      //{model:User, as: 'SpotUser', attributes:['id', 'firstName', 'lastName']},
+      {model:Spot, as: 'Spots', attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price'],
+        include : [
+          {model:SpotImage, as: "SpotImages", attributes:['url']},
+        ]
+      },
+
+    ]
+  })
+
+  res.status(200).json(reviewDetails)
+
+})
+
+
+module.exports = router
