@@ -204,5 +204,22 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     return res.status(200).json(spot)
 })
 
+//delete a spot
+router.delete('/:spotId', requireAuth, async(req,res) => {
+    const spot = req.params.spotId;
+
+    const spotToDelete = await Spot.findByPk(spot)
+
+    if(!spotToDelete) {
+        return res.status(404).json({message: "Spot couldn't be found"})
+    }
+    
+    await spotToDelete.destroy()
+
+    return res.status(200).json({message: "Successfully deleted"})
+
+
+})
+
 
 module.exports = router;
