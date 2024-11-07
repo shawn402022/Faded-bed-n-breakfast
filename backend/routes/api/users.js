@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User, Spot, Review, SpotImage, ReviewImage } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -92,11 +92,11 @@ router.get('/:userId/reviews', requireAuth, async(req,res) => {
   const reviewDetails = await User.findByPk(userId, {
     include: [
       {model:Review, as:'Reviews', attributes:['id', 'userId', 'spotId', 'review', 'stars'],
+        //error here
         include : [
-          {model:ReviewImage, as : 'ReviewImages', attributes: ['id','url']}
+          {model:ReviewImages, as : 'ReviewImages', attributes: ['id','url']}
         ]
       },
-      //{model:User, as: 'SpotUser', attributes:['id', 'firstName', 'lastName']},
       {model:Spot, as: 'Spots', attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price'],
         include : [
           {model:SpotImage, as: "SpotImages", attributes:['url']},
