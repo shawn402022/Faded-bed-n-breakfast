@@ -98,7 +98,7 @@ router.get('/:userId/reviews', requireAuth, async(req, res) => {
       },
       {
         model: Spot, as:'ReviewSpot',
-
+        
         attributes: [
           'id', 'ownerId', 'address', 'city', 'state', 'country',
           'lat', 'lng', 'name', 'price',
@@ -132,7 +132,7 @@ router.get('/test', async (req,res) => {
   const fTable = await Review.findAll({
     include: [
       {
-        model: Spot, as : 'ReviewSpots',
+        model: Spot, as : 'ReviewSpot',
       }
     ]
   })
