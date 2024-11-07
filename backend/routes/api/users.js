@@ -14,6 +14,7 @@ const router = express.Router();
 const { check } = require('express-validator');
 
 const { handleValidationErrors } = require('../../utils/validation');
+const { where } = require('sequelize');
 
 //Get all Spots owned by the Current User
 router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
@@ -87,7 +88,6 @@ router.post(
 //Get all Reviews of the current user
 router.get('/:userId/reviews', requireAuth, async(req, res) => {
   const userId = req.params.userId;
-
   const reviews = await Review.findAll({
     where: { userId: userId },
     attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'],
@@ -98,18 +98,15 @@ router.get('/:userId/reviews', requireAuth, async(req, res) => {
       },
       {
         model: Spot, as:'ReviewSpot',
+
         attributes: [
           'id', 'ownerId', 'address', 'city', 'state', 'country',
           'lat', 'lng', 'name', 'price',
         ],
         include: [{
           model: SpotImage, as :'SpotImages',
-          //where: { preview: true },
           attributes: ['url'],
-          //as: 'SpotImages',
-          //required: false
         },
-
       ]
       },
       {
@@ -130,6 +127,19 @@ router.get('/:userId/reviews', requireAuth, async(req, res) => {
 
   return res.status(200).json({ Reviews: formattedReviews });
 });
+
+router.get('/test', async (req,res) => {
+  const fTable = await Review.findAll({
+    include: [
+      {
+        model: Spot, as : 'ReviewSpots',
+      }
+    ]
+  })
+
+  return res.json(fTable)
+})
+
 
 
 module.exports = router
