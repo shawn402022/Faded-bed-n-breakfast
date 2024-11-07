@@ -45,24 +45,28 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Spot.belongsTo(models.User,{
         foreignKey: 'ownerId',
-        as: 'SpotUser'
+        as: 'SpotUser',
+        onDelete: 'CASCADE'        
       });
       Spot.hasMany(models.SpotImage,
         {
           foreignKey:'spotId',
-          as: 'SpotImages'
+          as: 'SpotImages',
+          onDelete: 'CASCADE' 
         }
       );
       Spot.hasMany(models.Review,
         {
           foreignKey:'spotId',
-          as: 'Reviews'
+          as: 'Reviews',
+          onDelete: 'CASCADE' 
         }
       );
       Spot.hasMany(models.Booking,
         {
           foreignKey:'spotId',
-          as: 'SpotBooking'
+          as: 'SpotBooking',
+          onDelete: 'CASCADE' 
         }
       );
     }

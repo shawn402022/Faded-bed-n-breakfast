@@ -12,18 +12,21 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Review.belongsTo(models.User,{
         foreignKey: 'userId',
-        as: 'ReviewUser'
+        as: 'ReviewUser',
+        onDelete: 'CASCADE'
       });
       Review.hasMany(models.ReviewImages,
         {
           foreignKey:'reviewId',
-          as: 'ReviewImages'
+          as: 'ReviewImages',
+          onDelete: 'CASCADE' 
         }
       );
       Review.belongsTo(models.Spot,
         {
           foreignKey:'spotId',
-          as: 'ReviewSpot'
+          as: 'ReviewSpot',
+          onDelete: 'CASCADE'
         }
       );
     }
@@ -51,7 +54,15 @@ module.exports = (sequelize, DataTypes) => {
     },
     stars: {
       type: DataTypes.DECIMAL(2,1),
-      allowNull: false
+      allowNull: false,
+      validate: {
+        isDecimal: true,
+        min:0,
+        max: 5,
+        only2Digits(value) {
+          if (value * 10 % 1 !== 0) throw new Error('Stars can have at most one decimal place');
+        }
+      }
     }
   }
   , {
