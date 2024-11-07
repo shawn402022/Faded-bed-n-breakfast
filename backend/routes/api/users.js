@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User, Spot, Review, SpotImage, ReviewImage } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -85,30 +85,51 @@ router.post(
 );
 
 //Get all Reviews of the current user
-router.get('/:userId/reviews', requireAuth, async(req,res) => {
+router.get('/:userId/reviews', requireAuth, async(req, res) => {
+  const userId = req.params.userId;
 
-  const userId = req.params.userId
-
-  const reviewDetails = await User.findByPk(userId, {
+  const reviews = await Review.findAll({
+    where: { userId: userId },
+    attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'],
     include: [
-      {model:Review, as:'Reviews', attributes:['id', 'userId', 'spotId', 'review', 'stars'],
-        include : [
-          {model:ReviewImage, as : 'ReviewImages', attributes: ['id','url']}
-        ]
+      {
+        model: User, as : 'ReviewUser',
+        attributes: ['id', 'firstName', 'lastName']
       },
-      //{model:User, as: 'SpotUser', attributes:['id', 'firstName', 'lastName']},
-      {model:Spot, as: 'Spots', attributes: ['id', 'ownerId', 'address', 'city', 'state', 'country', 'lat', 'lng', 'name', 'description', 'price'],
-        include : [
-          {model:SpotImage, as: "SpotImages", attributes:['url']},
-        ]
-      },
+      {
+        model: Spot, as:'ReviewSpot',
+        attributes: [
+          'id', 'ownerId', 'address', 'city', 'state', 'country',
+          'lat', 'lng', 'name', 'price',
+        ],
+        include: [{
+          model: SpotImage, as :'SpotImages',
+          //where: { preview: true },
+          attributes: ['url'],
+          //as: 'SpotImages',
+          //required: false
+        },
 
+      ]
+      },
+      {
+        model: ReviewImages, as: 'ReviewImages',
+        attributes: ['id', 'url']
+      }
     ]
-  })
+  });
 
-  res.status(200).json(reviewDetails)
+  // Format the response
+  const formattedReviews = reviews.map(review => {
+    const reviewJSON = review.toJSON();
+    if (reviewJSON.Spot && reviewJSON.Spot.previewImage?.[0]) {
+      reviewJSON.Spot.previewImage = reviewJSON.Spot.previewImage[0].url;
+    }
+    return reviewJSON;
+  });
 
-})
+  return res.status(200).json({ Reviews: formattedReviews });
+});
 
 
 module.exports = router
