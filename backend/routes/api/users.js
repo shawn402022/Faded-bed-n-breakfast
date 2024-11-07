@@ -27,32 +27,6 @@ router.get('/:userId/spots', requireAuth, async (req,res) =>{
   res.json(foundSpots);
 });
 
-// "Bookings": [
-//     {
-//       "id": 1,
-//       "spotId": 1,
-
-//       "Spot": {
-//         "id": 1,
-//         "ownerId": 1,
-//         "address": "123 Disney Lane",
-//         "city": "San Francisco",
-//         "state": "California",
-//         "country": "United States of America",
-//         "lat": 37.7645358,
-//         "lng": -122.4730327,
-//         "name": "App Academy",
-//         "price": 123,
-//         "previewImage": "image url"
-//       },
-
-//       "userId": 2,
-//       "startDate": "2021-11-19",
-//       "endDate": "2021-11-20",
-//       "createdAt": "2021-11-19 20:39:36",
-//       "updatedAt": "2021-11-19 20:39:36"
-//     }
-
 //Get all of the Current User's Bookings
 router.get('/:userId/bookings', requireAuth, async (req,res) => {
   //get user id from rq.params

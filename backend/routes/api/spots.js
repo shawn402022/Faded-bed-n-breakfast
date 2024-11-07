@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 //imported from utils/auth.js. setTokenCookie creates JWT token, restoreUsers verifies the token sent in the request
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 //Import the user model
-const { Spot, Review, SpotImage, User, ReviewImages} = require('../../db/models');
+const { Spot, Review, SpotImage, User, ReviewImages, Booking} = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -130,7 +130,7 @@ router.get('/:spotId/reviews', async (req,res)=>{
 });
 
 //Create a Review for a Spot based on the Spot's id
-router.post('/:spotId/reviews', requireAuth, async (req,res)=>{
+router.post('/:spotId/reviews', requireAuth, async (req,res) => {
     //get spotId from url
     const spotId = req.params.spotId;
     //get userId from user
@@ -149,11 +149,45 @@ router.post('/:spotId/reviews', requireAuth, async (req,res)=>{
         stars: newReview.stars,
         createdAt: newReview.createdAt,
         updatedAt: newReview.updatedAt
-    }
+    };
 
-    res.status(201).json(response)
+    res.status(201).json(response);
+});
 
-})
+// { NOT THE OWNER
+//     "Bookings": [
+//       {
+//         "spotId": 1,
+//         "startDate": "2021-11-19",
+//         "endDate": "2021-11-20"
+//       }
+//     ]
+//   }
+
+//Get all Bookings for a Spot based on the Spot's id
+router.get('/:spotId/bookings', requireAuth, async (req,res) => {
+    //get spotId from url
+    const spotId = req.params.spotId;
+    //find the spot
+    const spot = await Spot.findByPk(spotId);
+    //if spot doesnt exist
+    if(!spot)res.status(404).json({message:"Spot couldn't be found"})
+    
+    //if spot belongs to the user
+    if (spot.ownerId === req.user.id){
+        const foundBookings = await Booking.findAll({
+            where: {spotId: spotId},
+            include:[{model:User, as:'BookingUser', attributes:['id','firstName', 'lastName']}]
+        });
+        res.json({Bookings:foundBookings})
+    } else {
+        const foundBookings = await Booking.findAll({
+            where: {spotId: spotId},
+            attributes:['spotId', 'startDate','endDate']
+        });
+        res.json({Bookings:foundBookings})
+    };
+});
 
 //get details of a Spot from an Id
 router.get('/:spotId', async (req,res) => {
