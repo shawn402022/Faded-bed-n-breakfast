@@ -186,7 +186,7 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     }
 
     //Check if spot belongs to current user
-    if(spot.ownerId !== req.user.id) {
+    if(spot.ownerId !== req.review.id) {
         return res.status(400).json({message:"bad request"})
     } else if(!validateCreate) {
         return res.status(400).json({message:"bad validate"})
