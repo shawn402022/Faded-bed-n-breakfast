@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
 const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 

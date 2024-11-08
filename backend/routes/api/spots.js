@@ -129,6 +129,57 @@ router.get('/:spotId/reviews', async (req,res)=>{
     res.json({Reviews:foundReviews});
 });
 
+//Create a Review for a Spot Midddleware
+const validateCreateReview = [
+    check('review')
+        .exists({ checkFalsy: true })
+        .withMessage("Review text is required"),
+    check('stars')
+        .isFloat({min:0, max:5})
+        .withMessage("Stars must be an integer from 1 to 5"),
+    handleValidationErrors 
+]
+
+//Create a Review for a Spot based on the Spot's id
+router.post('/:spotId/reviews', requireAuth, validateCreateReview, async (req,res)=>{
+    //get spotId from url
+    const spotId = req.params.spotId;
+    
+    //test if spot exists
+    const spotTest = await Spot.findByPk(spotId,{
+        include:[{model:Review, as:'Reviews', attributes:['userId'] }] 
+    });
+    if(!spotTest) res.status(404).json({message: "Spot couldn't be found"});
+    
+    //see if user already has a review
+    spotTest.Reviews.forEach((id)=>{
+        if(id.userId === req.user.id){
+            res.status(500).json({message: "User already has a review for this spot"})
+        }
+    });
+
+    //get userId from user
+    const userId = req.user.id;
+    //get inputs from req
+    const {review, stars} = req.body;
+    //create a new review
+    const newReview = await Review.create({spotId, userId, review, stars});
+    
+    //response
+    const response = {
+        id: newReview.id,
+        spotId: newReview.spotId,
+        userId: newReview.userId,
+        review: newReview.review,
+        stars: newReview.stars,
+        createdAt: newReview.createdAt,
+        updatedAt: newReview.updatedAt
+    }
+
+    res.status(201).json(response)
+
+})
+
 //get details of a Spot from an Id
 router.get('/:spotId', async (req,res) => {
     const spotIdParam = req.params.spotId;
