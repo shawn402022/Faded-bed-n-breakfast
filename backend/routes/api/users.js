@@ -7,13 +7,14 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User, Spot } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
 const { check } = require('express-validator');
 
 const { handleValidationErrors } = require('../../utils/validation');
+const { where } = require('sequelize');
 
 //Get all Spots owned by the Current User
 router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
@@ -24,7 +25,7 @@ router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
   const foundSpots = await Spot.findAll({
     where:{ownerId: id}
   })
-  
+
   res.json(foundSpots)
 })
 
@@ -84,4 +85,61 @@ router.post(
   }
 );
 
-module.exports = router;
+//Get all Reviews of the current user
+router.get('/:userId/reviews', requireAuth, async(req, res) => {
+  const userId = req.params.userId;
+  const reviews = await Review.findAll({
+    where: { userId: userId },
+    attributes: ['id', 'userId', 'spotId', 'review', 'stars', 'createdAt', 'updatedAt'],
+    include: [
+      {
+        model: User, as : 'ReviewUser',
+        attributes: ['id', 'firstName', 'lastName']
+      },
+      {
+        model: Spot, as:'ReviewSpot',
+        
+        attributes: [
+          'id', 'ownerId', 'address', 'city', 'state', 'country',
+          'lat', 'lng', 'name', 'price',
+        ],
+        include: [{
+          model: SpotImage, as :'SpotImages',
+          attributes: ['url'],
+        },
+      ]
+      },
+      {
+        model: ReviewImages, as: 'ReviewImages',
+        attributes: ['id', 'url']
+      }
+    ]
+  });
+
+  // Format the response
+  const formattedReviews = reviews.map(review => {
+    const reviewJSON = review.toJSON();
+    if (reviewJSON.Spot && reviewJSON.Spot.previewImage?.[0]) {
+      reviewJSON.Spot.previewImage = reviewJSON.Spot.previewImage[0].url;
+    }
+    return reviewJSON;
+  });
+
+  return res.status(200).json({ Reviews: formattedReviews });
+});
+
+router.get('/test', async (req,res) => {
+  const fTable = await Review.findAll({
+    include: [
+      {
+        model: Spot, as : 'ReviewSpot',
+      }
+    ]
+  })
+
+  return res.json(fTable)
+})
+
+
+
+module.exports = router
