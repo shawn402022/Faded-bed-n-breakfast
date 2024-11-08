@@ -1,5 +1,5 @@
 //IMPORTS AND REQUIREMENTS
-
+//TEST COMMENT
 //imports the Express.js framework, which is used to create web applications and APIs in Node.js
 const express = require('express');
 //importing Operator object - used for complex queries.
@@ -109,7 +109,7 @@ router.get('/:spotId/reviews', async (req,res)=>{
     const id = req.params.spotId;
     //check if spot exists
     const checkSpot = await Spot.findByPk(id);
-    
+
     if(!checkSpot)res.status(404).json({message:"Spot couldn't be found"})
     //get all reviews for spot
     const foundReviews = await Review.findAll({
@@ -121,10 +121,10 @@ router.get('/:spotId/reviews', async (req,res)=>{
             {model:ReviewImages, as: "ReviewImages", attributes:['id','url']}
         ]
     });
-    
+
     //check if reviews exist
     if(foundReviews.length === 0)res.status(200).json({message:"No reviews for this spot"});
-    
+
     //response
     res.json({Reviews:foundReviews});
 });
