@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 //imports key functions from utils/auth.js. setTokenCookie creates JWT token, requireAuth verifies 'user' from a token
 const { setTokenCookie, requireAuth } = require('../../utils/auth');
 //imports user model
-const { User, Spot, Review, SpotImage, ReviewImages } = require('../../db/models');
+const { User, Spot, Review, SpotImage, ReviewImages,Booking } = require('../../db/models');
 
 //creates a new router for this route
 const router = express.Router();

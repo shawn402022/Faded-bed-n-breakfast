@@ -17,16 +17,6 @@ const { check } = require('express-validator');
 
 const { handleValidationErrors } = require('../../utils/validation');
 
-//const validateAddImage = [
-//    check('url')
-//        .exists({ checkFalsy: true })
-//        .notEmpty()
-//        .withMessage('Please provide a valid Image.'),
-//    handleValidationErrors
-//];
-
-
-
 //add Image to Review based on Reviews id
 router.post('/:reviewId/images', requireAuth,  async (req,res) => {
     const userReview = await Review.findByPk(req.params.reviewId);
@@ -66,30 +56,56 @@ router.post('/:reviewId/images', requireAuth,  async (req,res) => {
 
 
 });
-/*
-    //check if spot exits
-    const spot = await Spot.findByPk(req.params.spotId);
-    if(!spot){
-        return res.status(404).json({"message": "Spot couldn't be found"} );
-    }
-    //verify spot belongs to user
-    if (spot.ownerId !== req.user.id){
-        return res.status(401).json('Unauthorized');
-    }
-    //grab inputs from req.body
 
-    const {url, preview} = req.body;
-    //grab user ID
-    const spotId = req.params.spotId
-    //create new spotImage
-    const newImage = await SpotImage.create({url, preview, spotId});
-    //response
-    const response = {
-        id: newImage.id,
-        url: newImage.url,
-        preview: newImage.preview
-    }
-    res.status(201).json(response);
-*/
+//Edit Review MiddleWare
+const validateReviewUpdate = [
+    check('review')
+        .optional()
+        .exists({ checkFalsy: true })
+        .withMessage("Review text is required"),
+    check('stars')
+        .optional()
+        .isFloat({min: 0, max:5})
+        .withMessage("Stars must be an integer from 1 to 5"),
+    handleValidationErrors
+];
+
+//Edit a Review
+router.patch('/:reviewId', requireAuth, validateReviewUpdate, async (req,res) => {
+    //get reviewId from url
+    const reviewId = req.params.reviewId;
+
+    //find the review
+    const foundReview = await Review.findByPk(reviewId);
+    if(!foundReview) res.status(404).json({message: "Review couldn't be found"});
+    
+    //check autherization
+    if(foundReview.userId !== req.user.id) res.status(401).json({unautherized:'Review must belong to the current user'});
+
+    //grab data from req
+    const {review, stars} =req.body;
+    //update the review
+    await foundReview.update({review, stars});
+
+    res.status(200).json(foundReview);
+});
+
+//Delete a Review
+router.delete('/:reviewId', requireAuth, async (req,res) => {
+    //get reviewId from url
+    const reviewId = req.params.reviewId;
+
+    //find the review
+    const foundReview = await Review.findByPk(reviewId);
+    if(!foundReview) res.status(404).json({message: "Review couldn't be found"});
+    
+    //check autherization
+    if(foundReview.userId !== req.user.id) res.status(401).json({unautherized:'Review must belong to the current user'});
+
+    //delete the review
+    await foundReview.destroy()
+    return res.status(200).json({message: "Successfully deleted"})
+});
+
 
 module.exports = router;
