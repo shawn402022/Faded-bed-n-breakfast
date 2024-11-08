@@ -18,31 +18,40 @@ const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
 
 
+
+
 //delete a spot Image
-router.delete('/spot-images/:imageId', requireAuth, async (req, res) => {
+
+router.delete('/:imageId', requireAuth, async (req, res) => {
     const spotImageId = req.params.imageId
 
-    const spotImageToDelete = await SpotImage.findByPk(spotImageId , {
-        include: [{
+    const spotImageToDelete = await SpotImage.findByPk(spotImageId, {
+        include:{
             model:Spot,
-            as:"Spot"
-        }]
+            as:'Spot',
+            attributes:["ownerId"]
+
+        }
     })
+    //console.log(` TEST TEST TEST ${spotImageToDelete.ownerId}`)
 
     if(!spotImageToDelete) {
         return res.status(404).json({message: "Spot Image could not  be found"})
     }
 
-    if (spotToDelete.Spot.ownerId !== req.user.id){
+    if (spotImageToDelete.Spot.ownerId !== req.user.id){
         return res.status(401).json('Unauthorized');
     }
 
     await spotImageToDelete.destroy();
-    await updateAllSpotPreviews()
+
+
 
     return res.status(200).json({message:"Successfully deleted"})
 
 
 })
+
+
 
 module.exports = router
