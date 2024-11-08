@@ -76,6 +76,40 @@ router.post('/new', requireAuth, validateCreate, async (req,res) =>{
     res.status(201).json(response)
 })
 
+router.post('/:spotId/bookings', requireAuth, async (req,res) => {
+    //get user Id from url
+    const userId = req.user.id;
+    //get spotId from url
+    const spotId = req.params.spotId;
+    //check if spot exits
+    const spot = await Spot.findByPk(spotId);
+    if(!spot) res.status(404).json({"message": "Spot couldn't be found"});
+    
+    //check if spot belongs to user
+    if(userId === spot.ownerId) res.status(401).json('Spot must NOT belong to the current use')
+
+    //get data from req.body
+    const {startDate, endDate} = req.body;
+
+    //end date cannot be before start date
+    
+    
+    //create new booking
+    const newBooking = await Booking.create({startDate,endDate, userId, spotId});
+    
+    const response = {
+        id: newBooking.id,
+        spotId: newBooking.spotId,
+        userId: newBooking.userId,
+        startDate: newBooking.startDate,
+        endDate: newBooking.endDate,
+        createdAt: newBooking.createdAt,
+        updatedAt: newBooking.updatedAt
+    }
+
+    res.status(201).json(response);
+});
+
 //Add an Image to a Spot based on the Spot's id
 router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     //check if spot exits
@@ -103,6 +137,31 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     res.status(201).json(response);
 })
 
+//Create a Review for a Spot based on the Spot's id
+router.post('/:spotId/reviews', requireAuth, async (req,res) => {
+    //get spotId from url
+    const spotId = req.params.spotId;
+    //get userId from user
+    const userId = req.user.id;
+    //get inputs from req
+    const {review, stars} = req.body;
+    //create a new review
+    const newReview = await Review.create({spotId, userId, review, stars});
+    
+    //response
+    const response = {
+        id: newReview.id,
+        spotId: newReview.spotId,
+        userId: newReview.userId,
+        review: newReview.review,
+        stars: newReview.stars,
+        createdAt: newReview.createdAt,
+        updatedAt: newReview.updatedAt
+    };
+
+    res.status(201).json(response);
+});
+
 //Get all Reviews by a Spot's id
 router.get('/:spotId/reviews', async (req,res)=>{
     //get spotId from url
@@ -129,41 +188,6 @@ router.get('/:spotId/reviews', async (req,res)=>{
     res.json({Reviews:foundReviews});
 });
 
-//Create a Review for a Spot based on the Spot's id
-router.post('/:spotId/reviews', requireAuth, async (req,res) => {
-    //get spotId from url
-    const spotId = req.params.spotId;
-    //get userId from user
-    const userId = req.user.id;
-    //get inputs from req
-    const {review, stars} = req.body;
-    //create a new review
-    const newReview = await Review.create({spotId, userId, review, stars});
-    
-    //response
-    const response = {
-        id: newReview.id,
-        spotId: newReview.spotId,
-        userId: newReview.userId,
-        review: newReview.review,
-        stars: newReview.stars,
-        createdAt: newReview.createdAt,
-        updatedAt: newReview.updatedAt
-    };
-
-    res.status(201).json(response);
-});
-
-// { NOT THE OWNER
-//     "Bookings": [
-//       {
-//         "spotId": 1,
-//         "startDate": "2021-11-19",
-//         "endDate": "2021-11-20"
-//       }
-//     ]
-//   }
-
 //Get all Bookings for a Spot based on the Spot's id
 router.get('/:spotId/bookings', requireAuth, async (req,res) => {
     //get spotId from url
@@ -180,6 +204,7 @@ router.get('/:spotId/bookings', requireAuth, async (req,res) => {
             include:[{model:User, as:'BookingUser', attributes:['id','firstName', 'lastName']}]
         });
         res.json({Bookings:foundBookings})
+    //if spot Doesnt belong to the user
     } else {
         const foundBookings = await Booking.findAll({
             where: {spotId: spotId},
