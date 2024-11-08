@@ -1,5 +1,5 @@
 //IMPORTS AND REQUIREMENTS
-//TEST COMMENT
+
 //imports the Express.js framework, which is used to create web applications and APIs in Node.js
 const express = require('express');
 //importing Operator object - used for complex queries.
@@ -294,14 +294,14 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     const spot = await Spot.findByPk(spotIdParam);
 
     if(!spot) {
-        return res.status(404).json({message: "Spot couldn't be found"})
+        return res.status(404).json({message: "Spot couldn't be found"});
     }
 
     //Check if spot belongs to current user
     if(spot.ownerId !== req.review.id) {
-        return res.status(400).json({message:"bad request"})
+        return res.status(400).json({message:"bad request"});
     } else if(!validateCreate) {
-        return res.status(400).json({message:"bad validate"})
+        return res.status(400).json({message:"bad validate"});
     }
 
     //Update the spot
@@ -313,7 +313,7 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
         price
     });
 
-    return res.status(200).json(spot)
+    return res.status(200).json(spot);
 })
 
 //delete a spot
