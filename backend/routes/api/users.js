@@ -18,17 +18,31 @@ const { handleValidationErrors } = require('../../utils/validation');
 const { where } = require('sequelize');
 
 //Get all Spots owned by the Current User
-router.get('/:userId/spots', requireAuth, async (req,res,next) =>{
+router.get('/:userId/spots', requireAuth, async (req,res) =>{
   //get user id from rq.params
-  const id = req.params.userId
+  const id = req.params.userId;
   //get the users spots
-  console.log('ID = ', id)
   const foundSpots = await Spot.findAll({
     where:{ownerId: id}
-  })
+  });
 
-  res.json(foundSpots)
-})
+  res.json(foundSpots);
+});
+
+//Get all of the Current User's Bookings
+router.get('/:userId/bookings', requireAuth, async (req,res) => {
+  //get user id from rq.params
+  const id = req.params.userId;
+  //get all bookings with that userId
+  const foundBookings = await Booking.findAll({
+    where:{userId: id},
+    include:[{model:Spot, as: 'BookingSpot', attributes:{exclude:['avgRating', 'createdAt', 'updatedAt','description']}}] // <--- eager loading
+  });
+  //check if bookings exist
+  if(foundBookings.length === 0) res.status(404).json({message:"No bookings for this User"})
+  
+  res.status(200).json({Bookings:foundBookings});  
+});
 
 //sign up middleware
 const validateSignup = [
