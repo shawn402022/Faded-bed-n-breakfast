@@ -27,6 +27,8 @@ router.patch('/:bookingId', requireAuth, async (req,res) => {
     //autherize
     if (foundBooking.userId !== req.user.id) res.status(401).json('Unauthorized');
 
+    //!end date cannot be before start date!!!!!!!!!
+
     //get info from req body and update
     const {startDate, endDate} = req.body;
     await foundBooking.update({startDate, endDate});

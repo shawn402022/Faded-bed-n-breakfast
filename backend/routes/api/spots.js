@@ -76,6 +76,7 @@ router.post('/new', requireAuth, validateCreate, async (req,res) =>{
     res.status(201).json(response)
 })
 
+//Create a Booking from a Spot based on the Spot's id
 router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //get user Id from url
     const userId = req.user.id;
@@ -86,12 +87,19 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     if(!spot) res.status(404).json({"message": "Spot couldn't be found"});
     
     //check if spot belongs to user
-    if(userId === spot.ownerId) res.status(401).json('Spot must NOT belong to the current use')
+    if(userId !== spot.ownerId) res.status(401).json('Spot must not belong to the current user')
 
     //get data from req.body
     const {startDate, endDate} = req.body;
 
-    //end date cannot be before start date
+    //check start and end dates
+    if(startDate >= endDate){
+        const err = new Error();
+        err.errors = {endDate: "End date cannot be on or before startDate"}
+        res.status(400).json(err)
+    }
+
+    //!end date cannot be before start date!!!!!!!!!
     
     
     //create new booking
