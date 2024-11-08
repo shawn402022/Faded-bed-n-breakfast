@@ -40,7 +40,18 @@ router.post('/:reviewId/images', requireAuth,  async (req,res) => {
     if(userReview.userId !== req.user.id) {
         return res.status(403).json({message: "Forbidden"});
     }
-    
+
+    // Count existing images fpr this particular review
+    const imageCount = await ReviewImages.count({
+        where :{ reviewId: req.params.reviewId}
+    })
+
+    //check if the maximum number of images is reached
+    if(imageCount>= 10 ){
+        return res.status(403).json({
+            message: "Maximum number of images for this resource was reached"
+        })
+    }
 
     const newImage = await ReviewImages.create({
         reviewId: req.params.reviewId,
@@ -51,8 +62,9 @@ router.post('/:reviewId/images', requireAuth,  async (req,res) => {
         id: newImage.id,
         url: newImage.url
     };
-
     res.status(201).json(response);
+
+
 });
 /*
     //check if spot exits
