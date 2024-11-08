@@ -17,20 +17,21 @@ const { check } = require('express-validator');
 
 const { handleValidationErrors } = require('../../utils/validation');
 
-const validateAddImage = [
-    check('url')
-        .exists({ checkFalsy: true })
-        .notEmpty()
-        .withMessage('Please provide a valid Image.'),
-    handleValidationErrors
-];
+//const validateAddImage = [
+//    check('url')
+//        .exists({ checkFalsy: true })
+//        .notEmpty()
+//        .withMessage('Please provide a valid Image.'),
+//    handleValidationErrors
+//];
 
 
 
 //add Image to Review based on Reviews id
-router.post('/:reviewId/images', requireAuth, validateAddImage, async (req,res) => {
+router.post('/:reviewId/images', requireAuth,  async (req,res) => {
     const userReview = await Review.findByPk(req.params.reviewId);
     const { url } = req.body;
+    //const urlImage = '../images/m5.jpg'
 
     if(!userReview) {
         return res.status(404).json({message: "Review couldn't be found"});
@@ -39,6 +40,7 @@ router.post('/:reviewId/images', requireAuth, validateAddImage, async (req,res) 
     if(userReview.userId !== req.user.id) {
         return res.status(403).json({message: "Forbidden"});
     }
+    
 
     const newImage = await ReviewImages.create({
         reviewId: req.params.reviewId,

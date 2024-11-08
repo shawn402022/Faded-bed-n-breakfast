@@ -2,6 +2,8 @@
 
 const sessionRouter = require('./session.js');
 
+const reviewsRouter = require('./reviews.js')
+
 const usersRouter = require('./users.js');
 
 const spotsRouter = require('./spots.js');
@@ -42,6 +44,7 @@ router.get(
 //MIDDLEWARE/ROUTE CONNECTIONS
 router.use(restoreUser);
 router.use('/session', sessionRouter);
+router.use('/reviews', reviewsRouter);
 router.use('/users', usersRouter);
 router.use('/spots', spotsRouter);
 router.post('/test', (req, res) => {
