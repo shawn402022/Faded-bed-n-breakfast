@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 //imported from utils/auth.js. setTokenCookie creates JWT token, restoreUsers verifies the token sent in the request
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 //Import the user model
-const {  Review,  ReviewImages } = require('../../db/models');
+const {  Review,  ReviewImages, Users } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -78,7 +78,7 @@ router.patch('/:reviewId', requireAuth, validateReviewUpdate, async (req,res) =>
     //find the review
     const foundReview = await Review.findByPk(reviewId);
     if(!foundReview) res.status(404).json({message: "Review couldn't be found"});
-    
+
     //check autherization
     if(foundReview.userId !== req.user.id) res.status(401).json({unautherized:'Review must belong to the current user'});
 
@@ -98,7 +98,7 @@ router.delete('/:reviewId', requireAuth, async (req,res) => {
     //find the review
     const foundReview = await Review.findByPk(reviewId);
     if(!foundReview) res.status(404).json({message: "Review couldn't be found"});
-    
+
     //check autherization
     if(foundReview.userId !== req.user.id) res.status(401).json({unautherized:'Review must belong to the current user'});
 
@@ -107,5 +107,29 @@ router.delete('/:reviewId', requireAuth, async (req,res) => {
     return res.status(200).json({message: "Successfully deleted"})
 });
 
+//Delete a Review Image
+router.delete('/:reviewId/image/:imageId', requireAuth, async (req,res) =>{
+    const reviewImageId = req.params.imageId;
+
+    const reviewImageToDelete = await ReviewImages.findByPk(reviewImageId, {
+        include: {
+            model:Review,
+            as: "Review",
+            attributes:["userId"]
+        }
+    })
+
+    if(!reviewImageToDelete) {
+        return res.status(404).json({message:"Review Image couldn't be found"})
+    }
+
+    if(reviewImageToDelete.Review.userId !== req.user.id) {
+        return res.status(401).json('Unauthorized')
+    }
+
+    await reviewImageToDelete.destroy();
+
+    return res.status(200).json({message:"Successfully deleted"})
+})
 
 module.exports = router;
