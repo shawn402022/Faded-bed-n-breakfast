@@ -372,8 +372,26 @@ router.delete('/:spotId/image/:imageId', requireAuth, async (req, res) => {
 //get all spots
 router.get('/', async (req,res)=> {
 
+    let {page, size} = req.query
+
+    if(!page) page = 1;
+    if(!size) page = 20;
+
+    page = parseInt(page);
+    size = parseInt(size);
+
+    const pagination = {}
+
+    if(page >= 1 && size >= 1) {
+        pagination.limit = size;
+        pagination.offset = size * (page -1)
+    }
+
     //get all spots
-    const allSpots = await Spot.findAll();
+    const allSpots = await Spot.findAll({...pagination});
+
+
+
 
     res.status(200).json(allSpots);
 })
