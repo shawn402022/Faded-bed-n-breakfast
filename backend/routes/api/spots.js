@@ -97,10 +97,9 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
         const err = new Error();
         err.errors = {endDate: "End date cannot be on or before startDate"}
         res.status(400).json(err)
-    }
+    };
 
-    //!end date cannot be before start date!!!!!!!!!
-    
+     //!Booking dates cannot conflict
     
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
@@ -113,7 +112,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
         endDate: newBooking.endDate,
         createdAt: newBooking.createdAt,
         updatedAt: newBooking.updatedAt
-    }
+    };
 
     res.status(201).json(response);
 });
