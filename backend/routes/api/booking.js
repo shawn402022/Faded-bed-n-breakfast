@@ -31,10 +31,10 @@ router.patch('/:bookingId', requireAuth, async (req,res) => {
     const id = req.params.bookingId;
     //check if booking exits
     const foundBooking = await Booking.findByPk(id); 
-    if(!foundBooking) res.status(404).json({message: "Booking couldn't be found"});
+    if(!foundBooking) return res.status(404).json({message: "Booking couldn't be found"});
 
     //autherize
-    if (foundBooking.userId !== req.user.id) res.status(401).json('Unauthorized');
+    if (foundBooking.userId !== req.user.id) return res.status(401).json('Unauthorized');
 
     //get info from req body 
     const {startDate, endDate} = req.body;
@@ -43,26 +43,28 @@ router.patch('/:bookingId', requireAuth, async (req,res) => {
     if(startDate >= endDate){
         const err = new Error();
         err.errors = {endDate: "End date cannot be on or before startDate"}
-        res.status(400).json(err)
+        return res.status(400).json(err)
     }
-    
+    console.log(id)
     //checking start date/ end date
     const checkStartDate = await Booking.findOne({
         where:{
             spotId: foundBooking.spotId,
+            id: { [Op.ne]: id },
             [Op.and]: [
                 {endDate: {[Op.gte]:startDate}},
                 {startDate:{[Op.lte]:endDate}}
             ]
         }
     })
+    console.log("checkStartDate object= ", checkStartDate)
     if (checkStartDate) {
         const err = new Error()
         err.errors = {
             startDate: "Start date conflicts with an existing booking",
             endDate: "End date conflicts with an existing booking"
         };
-        res.status(403).json(err);
+        return res.status(403).json(err);
     }
 
     //update booking
