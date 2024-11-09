@@ -1,5 +1,5 @@
 //IMPORTS AND REQUIREMENTS
-//TEST COMMENT
+
 //imports the Express.js framework, which is used to create web applications and APIs in Node.js
 const express = require('express');
 //importing Operator object - used for complex queries.
@@ -76,6 +76,7 @@ router.post('/new', requireAuth, validateCreate, async (req,res) =>{
     res.status(201).json(response)
 })
 
+//Create a Booking fom a Spot based on the Spot's id
 router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //get user Id from url
     const userId = req.user.id;
@@ -87,16 +88,38 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
 
 
     //check if spot belongs to user
-    if(userId === spot.ownerId) res.status(401).json('Spot must NOT belong to the current use')
+    if(userId !== spot.ownerId) res.status(401).json('Spot must not belong to the current user')
 
     //get data from req.body
     const {startDate, endDate} = req.body;
 
-    //end date cannot be before start date
 
+    //check start and end dates
+    if(startDate >= endDate){
+        const err = new Error();
+        err.errors = {endDate: "End date cannot be on or before startDate"}
+        res.status(400).json(err)
+    };
 
-
-
+    //checking start date/ end date
+    const checkStartDate = await Booking.findOne({
+        where:{
+            spotId: spotId,
+            [Op.and]: [
+                {endDate: {[Op.gte]:startDate}},
+                {startDate:{[Op.lte]:endDate}}
+            ]
+        }
+    })
+    if (checkStartDate) {
+        const err = new Error()
+        err.errors = {
+            startDate: "Start date conflicts with an existing booking",
+            endDate: "End date conflicts with an existing booking"
+        };
+        res.status(403).json(err);
+    }
+    
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
 
@@ -109,7 +132,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
         endDate: newBooking.endDate,
         createdAt: newBooking.createdAt,
         updatedAt: newBooking.updatedAt
-    }
+    };
 
     res.status(201).json(response);
 });
@@ -300,14 +323,14 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
     const spot = await Spot.findByPk(spotIdParam);
 
     if(!spot) {
-        return res.status(404).json({message: "Spot couldn't be found"})
+        return res.status(404).json({message: "Spot couldn't be found"});
     }
 
     //Check if spot belongs to current user
     if(spot.ownerId !== req.review.id) {
-        return res.status(400).json({message:"bad request"})
+        return res.status(400).json({message:"bad request"});
     } else if(!validateCreate) {
-        return res.status(400).json({message:"bad validate"})
+        return res.status(400).json({message:"bad validate"});
     }
 
     //Update the spot
@@ -319,7 +342,7 @@ router.put('/:spotId', requireAuth, validateEdit,async(req, res) => {
         price
     });
 
-    return res.status(200).json(spot)
+    return res.status(200).json(spot);
 })
 
 //delete a spot

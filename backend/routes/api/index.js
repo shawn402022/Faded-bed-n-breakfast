@@ -8,7 +8,7 @@ const usersRouter = require('./users.js');
 
 const spotsRouter = require('./spots.js');
 
-
+const bookingRouter = require('./booking.js');
 
 const router = require('express').Router();
 
@@ -49,8 +49,7 @@ router.use('/session', sessionRouter);
 router.use('/reviews', reviewsRouter);
 router.use('/users', usersRouter);
 router.use('/spots', spotsRouter);
-
-router.use('/reviews', reviewsRouter);
+router.use('/booking', bookingRouter);
 router.post('/test', (req, res) => {
   res.json({ requestBody: req.body });
 });
