@@ -38,25 +38,15 @@ router.patch('/:bookingId', requireAuth, async (req,res) => {
 
     //get info from req body 
     const {startDate, endDate} = req.body;
+    
+    //check startdate against endate
+    if(startDate >= endDate){
+        const err = new Error();
+        err.errors = {endDate: "End date cannot be on or before startDate"}
+        res.status(400).json(err)
+    }
 
-    // //checking End date
-    // const checkEndDate = await Booking.findOne({
-    //     where:{
-    //         spotId: foundBooking.spotId,
-    //         [Op.and]:[
-    //             //found on table            new bnooking
-    //             {startDate: { [Op.gte]: startDate}}, //end of first AND operation 
-    //             {startDate: { [Op.lte]: endDate}} // end of second AND operation
-    //         ]
-    //     }
-    // });        
-    // if (checkEndDate) {
-    //     const err = new Error()
-    //     err.errors = {endDate: "End date conflicts with an existing booking"};
-    //     res.status(403).json(err);
-    // }
-
-    //checking start date
+    //checking start date/ end date
     const checkStartDate = await Booking.findOne({
         where:{
             spotId: foundBooking.spotId,
@@ -73,14 +63,6 @@ router.patch('/:bookingId', requireAuth, async (req,res) => {
             endDate: "End date conflicts with an existing booking"
         };
         res.status(403).json(err);
-    }
-    
-
-    //check startdate against endate
-    if(startDate >= endDate){
-        const err = new Error();
-        err.errors = {endDate: "End date cannot be on or before startDate"}
-        res.status(400).json(err)
     }
 
     //update booking

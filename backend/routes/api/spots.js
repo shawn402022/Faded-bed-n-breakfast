@@ -92,6 +92,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //get data from req.body
     const {startDate, endDate} = req.body;
 
+
     //check start and end dates
     if(startDate >= endDate){
         const err = new Error();
@@ -99,7 +100,24 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
         res.status(400).json(err)
     };
 
-     //!Booking dates cannot conflict
+    //checking start date/ end date
+    const checkStartDate = await Booking.findOne({
+        where:{
+            spotId: spot.spotId,
+            [Op.and]: [
+                {endDate: {[Op.gte]:startDate}},
+                {startDate:{[Op.lte]:endDate}}
+            ]
+        }
+    })
+    if (checkStartDate) {
+        const err = new Error()
+        err.errors = {
+            startDate: "Start date conflicts with an existing booking",
+            endDate: "End date conflicts with an existing booking"
+        };
+        res.status(403).json(err);
+    }
     
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
