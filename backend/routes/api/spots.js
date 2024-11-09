@@ -76,7 +76,7 @@ router.post('/new', requireAuth, validateCreate, async (req,res) =>{
     res.status(201).json(response)
 })
 
-//Create a Booking from a Spot based on the Spot's id
+//Create a Booking fom a Spot based on the Spot's id
 router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //get user Id from url
     const userId = req.user.id;
@@ -103,7 +103,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //checking start date/ end date
     const checkStartDate = await Booking.findOne({
         where:{
-            spotId: spot.spotId,
+            spotId: spotId,
             [Op.and]: [
                 {endDate: {[Op.gte]:startDate}},
                 {startDate:{[Op.lte]:endDate}}
