@@ -40,8 +40,8 @@ router.get('/:userId/bookings', requireAuth, async (req,res) => {
   });
   //check if bookings exist
   if(foundBookings.length === 0) res.status(404).json({message:"No bookings for this User"})
-  
-  res.status(200).json({Bookings:foundBookings});  
+
+  res.status(200).json({Bookings:foundBookings});
 });
 
 //sign up middleware
@@ -113,7 +113,7 @@ router.get('/:userId/reviews', requireAuth, async(req, res) => {
       },
       {
         model: Spot, as:'ReviewSpot',
-        
+
         attributes: [
           'id', 'ownerId', 'address', 'city', 'state', 'country',
           'lat', 'lng', 'name', 'price',
@@ -142,6 +142,7 @@ router.get('/:userId/reviews', requireAuth, async(req, res) => {
 
   return res.status(200).json({ Reviews: formattedReviews });
 });
+
 
 router.get('/test', async (req,res) => {
   const fTable = await Review.findAll({

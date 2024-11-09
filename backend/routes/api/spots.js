@@ -85,6 +85,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     const spot = await Spot.findByPk(spotId);
     if(!spot) res.status(404).json({"message": "Spot couldn't be found"});
 
+
     //check if spot belongs to user
     if(userId === spot.ownerId) res.status(401).json('Spot must NOT belong to the current use')
 
@@ -94,8 +95,11 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //end date cannot be before start date
 
 
+
+
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
+
 
     const response = {
         id: newBooking.id,
@@ -148,6 +152,7 @@ router.post('/:spotId/reviews', requireAuth, async (req,res) => {
     //create a new review
     const newReview = await Review.create({spotId, userId, review, stars});
 
+
     //response
     const response = {
         id: newReview.id,
@@ -197,6 +202,7 @@ const validateCreateReview = [
         .isFloat({min:0, max:5})
         .withMessage("Stars must be an integer from 1 to 5"),
     handleValidationErrors
+    handleValidationErrors
 ]
 
 //Get all Bookings for a Spot based on the Spot's id
@@ -207,6 +213,7 @@ router.get('/:spotId/bookings', requireAuth, async (req,res) => {
     const spot = await Spot.findByPk(spotId);
     //if spot doesnt exist
     if(!spot)res.status(404).json({message:"Spot couldn't be found"})
+
 
     //if spot belongs to the user
     if (spot.ownerId === req.user.id){
@@ -337,29 +344,63 @@ router.delete('/:spotId', requireAuth, async(req,res) => {
 
 })
 
-//delete a spotImage
-router.delete('/spot-images/:imageId', requireAuth, async (req, res) => {
+//delete a spot Image
+
+router.delete('/:spotId/image/:imageId', requireAuth, async (req, res) => {
     const spotImageId = req.params.imageId
 
     const spotImageToDelete = await SpotImage.findByPk(spotImageId, {
-        include: [{
-            model: Spot,
-            as: "Spot"
-        }]
+        include:{
+            model:Spot,
+            as:'Spot',
+            attributes:["ownerId"]
+
+        }
     })
+    //console.log(` TEST TEST TEST ${spotImageToDelete.ownerId}`)
 
     if(!spotImageToDelete) {
-        return res.status(404).json({message: "Spot Image could not be found"})
+        return res.status(404).json({message: "Spot Image could not  be found"})
     }
 
     if (spotImageToDelete.Spot.ownerId !== req.user.id){
-        return res.status(401).json({message: 'Unauthorized'})
+        return res.status(401).json('Unauthorized');
     }
 
-    await spotImageToDelete.destroy()
-    await updateAllSpotPreviews()
+    await spotImageToDelete.destroy();
 
-    return res.status(200).json({message: "Successfully deleted"})
+
+
+    return res.status(200).json({message:"Successfully deleted"})
+
+
+})
+
+//get all spots
+router.get('/', async (req,res)=> {
+
+    let {page, size} = req.query
+
+    if(!page) page = 1;
+    if(!size) page = 20;
+
+    page = parseInt(page);
+    size = parseInt(size);
+
+    const pagination = {}
+
+    if(page >= 1 && size >= 1) {
+        pagination.limit = size;
+        pagination.offset = size * (page -1)
+    }
+
+    //get all spots
+    const allSpots = await Spot.findAll({...pagination});
+
+
+
+
+    res.status(200).json(allSpots);
 })
 
 module.exports = router
