@@ -202,7 +202,6 @@ const validateCreateReview = [
         .isFloat({min:0, max:5})
         .withMessage("Stars must be an integer from 1 to 5"),
     handleValidationErrors
-    handleValidationErrors
 ]
 
 //Get all Bookings for a Spot based on the Spot's id
