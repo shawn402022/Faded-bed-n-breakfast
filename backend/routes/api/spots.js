@@ -84,7 +84,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     //check if spot exits
     const spot = await Spot.findByPk(spotId);
     if(!spot) res.status(404).json({"message": "Spot couldn't be found"});
-    
+
     //check if spot belongs to user
     if(userId === spot.ownerId) res.status(401).json('Spot must NOT belong to the current use')
 
@@ -92,11 +92,11 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
     const {startDate, endDate} = req.body;
 
     //end date cannot be before start date
-    
-    
+
+
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
-    
+
     const response = {
         id: newBooking.id,
         spotId: newBooking.spotId,
@@ -147,7 +147,7 @@ router.post('/:spotId/reviews', requireAuth, async (req,res) => {
     const {review, stars} = req.body;
     //create a new review
     const newReview = await Review.create({spotId, userId, review, stars});
-    
+
     //response
     const response = {
         id: newReview.id,
@@ -196,7 +196,7 @@ const validateCreateReview = [
     check('stars')
         .isFloat({min:0, max:5})
         .withMessage("Stars must be an integer from 1 to 5"),
-    handleValidationErrors 
+    handleValidationErrors
 ]
 
 //Get all Bookings for a Spot based on the Spot's id
@@ -207,7 +207,7 @@ router.get('/:spotId/bookings', requireAuth, async (req,res) => {
     const spot = await Spot.findByPk(spotId);
     //if spot doesnt exist
     if(!spot)res.status(404).json({message:"Spot couldn't be found"})
-    
+
     //if spot belongs to the user
     if (spot.ownerId === req.user.id){
         const foundBookings = await Booking.findAll({
@@ -337,13 +337,29 @@ router.delete('/:spotId', requireAuth, async(req,res) => {
 
 })
 
-//get all spots
-router.get('/', async (req,res)=> {
+//delete a spotImage
+router.delete('/spot-images/:imageId', requireAuth, async (req, res) => {
+    const spotImageId = req.params.imageId
 
-    //get all spots
-    const allSpots = await Spot.findAll();
+    const spotImageToDelete = await SpotImage.findByPk(spotImageId, {
+        include: [{
+            model: Spot,
+            as: "Spot"
+        }]
+    })
 
-    res.status(200).json(allSpots);
+    if(!spotImageToDelete) {
+        return res.status(404).json({message: "Spot Image could not be found"})
+    }
+
+    if (spotImageToDelete.Spot.ownerId !== req.user.id){
+        return res.status(401).json({message: 'Unauthorized'})
+    }
+
+    await spotImageToDelete.destroy()
+    await updateAllSpotPreviews()
+
+    return res.status(200).json({message: "Successfully deleted"})
 })
 
-module.exports = router;
+module.exports = router
