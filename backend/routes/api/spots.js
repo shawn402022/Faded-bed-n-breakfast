@@ -155,6 +155,21 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     const spotId = req.params.spotId
     //create new spotImage
     const newImage = await SpotImage.create({url, preview, spotId});
+    
+    //get all preview images
+    const previews =await spot.getSpotImages({
+        where:{
+        preview: true,
+
+        },
+        attributes: ['url']
+    });
+    //create array of urls from preview object
+    const urls = previews.map(preview => preview.url)
+    //assign array of urls to previewImage
+    spot.previewImage = urls;
+    await spot.save();
+      
     //response
     const response = {
         id: newImage.id,
@@ -163,6 +178,17 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     }
     res.status(201).json(response);
 })
+
+//Create a Review for a Spot Midddleware
+const validateCreateReview = [
+    check('review')
+        .exists({ checkFalsy: true })
+        .withMessage("Review text is required"),
+    check('stars')
+        .isFloat({min:0, max:5})
+        .withMessage("Stars must be an integer from 1 to 5"),
+    handleValidationErrors
+]
 
 //Create a Review for a Spot based on the Spot's id
 router.post('/:spotId/reviews', requireAuth, async (req,res) => {
@@ -230,16 +256,7 @@ router.get('/:spotId/reviews', async (req,res)=>{
     res.json({Reviews:foundReviews});
 });
 
-//Create a Review for a Spot Midddleware
-const validateCreateReview = [
-    check('review')
-        .exists({ checkFalsy: true })
-        .withMessage("Review text is required"),
-    check('stars')
-        .isFloat({min:0, max:5})
-        .withMessage("Stars must be an integer from 1 to 5"),
-    handleValidationErrors
-]
+
 
 //Get all Bookings for a Spot based on the Spot's id
 router.get('/:spotId/bookings', requireAuth, async (req,res) => {
@@ -381,7 +398,6 @@ router.delete('/:spotId', requireAuth, async(req,res) => {
 })
 
 //delete a spot Image
-
 router.delete('/:spotId/image/:imageId', requireAuth, async (req, res) => {
     const spotImageId = req.params.imageId
 
@@ -405,11 +421,28 @@ router.delete('/:spotId/image/:imageId', requireAuth, async (req, res) => {
 
     await spotImageToDelete.destroy();
 
+    //Update preview Images
+    const spot = await Spot.findByPk(spotImageToDelete.spotId)
+    console.log(spot)
+    //get all preview images
+    const previews =await spot.getSpotImages({
+        where:{
+        preview: true,
 
+        },
+        attributes: ['url']
+    });
+    if(previews.length === 0){
+        spot.previewImage = null;
+    } else {
+        //create array of urls from preview object
+        const urls = previews.map(preview => preview.url)
+        //assign array of urls to previewImage
+        spot.previewImage = urls;
+    }
+    await spot.save();
 
     return res.status(200).json({message:"Successfully deleted"})
-
-
 })
 
 //get all spots

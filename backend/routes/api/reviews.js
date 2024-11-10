@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 //imported from utils/auth.js. setTokenCookie creates JWT token, restoreUsers verifies the token sent in the request
 const { setTokenCookie, restoreUser, requireAuth } = require('../../utils/auth');
 //Import the user model
-const {  Review,  ReviewImages, Users } = require('../../db/models');
+const {  Review,  ReviewImages, Users, Spot } = require('../../db/models');
 //creates a new router for this route
 const router = express.Router();
 
@@ -87,6 +87,21 @@ router.patch('/:reviewId', requireAuth, validateReviewUpdate, async (req,res) =>
     //update the review
     await foundReview.update({review, stars});
 
+    //get the spot
+    const spot = await Spot.findByPk(foundReview.spotId);
+    //find all that spots reviews
+    const allReviews = await spot.getReviews();
+    //calculate total stars from all reviews
+    const total = allReviews.reduce((sum, review) => sum + review.stars, 0);
+    //calculate new Avg
+    const avgRating = Number((total / allReviews.length).toFixed(1));
+
+    // Only update if avgRating has changed
+    if (spot.avgRating !== avgRating) {
+        spot.avgRating = avgRating; // Update average rating
+        await spot.save(); // Save changes made to DB
+    }
+
     res.status(200).json(foundReview);
 });
 
@@ -100,10 +115,26 @@ router.delete('/:reviewId', requireAuth, async (req,res) => {
     if(!foundReview) res.status(404).json({message: "Review couldn't be found"});
 
     //check autherization
-    if(foundReview.userId !== req.user.id) res.status(401).json({unautherized:'Review must belong to the current user'});
+    if(foundReview.userId !== req.user.id) return res.status(401).json({unautherized:'Review must belong to the current user'});
 
     //delete the review
     await foundReview.destroy()
+
+    //get the spot
+    const spot = await Spot.findByPk(foundReview.spotId);
+    //find all that spots reviews
+    const allReviews = await spot.getReviews();
+    //calculate total stars from all reviews
+    const total = allReviews.reduce((sum, review) => sum + review.stars, 0);
+    //calculate new Avg
+    const avgRating = Number((total / allReviews.length).toFixed(1));
+
+    // Only update if avgRating has changed
+    if (spot.avgRating !== avgRating) {
+        spot.avgRating = avgRating; // Update average rating
+        await spot.save(); // Save changes made to DB
+    }
+
     return res.status(200).json({message: "Successfully deleted"})
 });
 
