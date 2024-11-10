@@ -175,7 +175,21 @@ router.post('/:spotId/reviews', requireAuth, async (req,res) => {
     //create a new review
     const newReview = await Review.create({spotId, userId, review, stars});
 
+    //get the spot
+    const spot = await Spot.findByPk(spotId);
+    //find all that spots reviews
+    const allReviews = await spot.getReviews();
+    //calculate total stars from all reviews
+    const total = allReviews.reduce((sum, review) => sum + review.stars, 0);
+    //calculate new Avg
+    const avgRating = Number((total / allReviews.length).toFixed(1));
 
+    // Only update if avgRating has changed
+    if (spot.avgRating !== avgRating) {
+        spot.avgRating = avgRating; // Update average rating
+        await spot.save(); // Save changes made to DB
+    }
+    
     //response
     const response = {
         id: newReview.id,

@@ -1,4 +1,5 @@
 'use strict';
+
 const {
   Model
 } = require('sequelize');
@@ -72,8 +73,8 @@ module.exports = (sequelize, DataTypes) => {
 
   //adding hooks for the avgSpotRating function in Spot model 
   // Review.afterCreate(async (review) => { 
-  //   const spot = await review.getSpot();
-  //   await spot.findAverageRating();
+  //   const spot = await Spot.findByPk(review.spotId)
+  //   await spot.findAvgRating();
   // });
   
   // Review.afterUpdate(async (review) => {

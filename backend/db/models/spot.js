@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       await this.save();
     }
 
-    async findAvgRating() {
+    findAvgRating = async function() {
       const allReviews = await this.getReviews();
     
       if (allReviews.length > 0) {
@@ -129,9 +129,9 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   //find avgRating
-  Spot.afterCreate(async (spot) => {
-    await spot.findAvgRating();
-  });
+  // Spot.afterCreate(async (spot) => {
+  //   await spot.findAvgRating();
+  // });
   // Spot.afterUpdate(async (spot) => {
   //   await spot.findAvgRating();
   // });
