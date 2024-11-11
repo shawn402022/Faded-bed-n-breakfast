@@ -456,7 +456,7 @@ const validateQuery = [
         .withMessage("Size must be greater than or equal to 1"),
     check('minLat')
         .optional()
-        .isFloat({ min: 1.0})
+        .isFloat({ min: 6.0})
         .withMessage("Minimum Latitude is invalid"),
     check('maxLat')
         .optional()
@@ -464,11 +464,11 @@ const validateQuery = [
         .withMessage("Maximum Latitude is invalid"),
     check('minLng')
         .optional()
-        .isFloat({ min: 1.0})
+        .isFloat({ min: 6.0})
         .withMessage("Minimum Longitude is invalid"),
     check('maxLat')
         .optional()
-        .isFloat({ max: 90.0 })
+        .isFloat({ max: 13.0 })
         .withMessage("Maximum Longitude is invalid"),
     check('price')
         .optional()
