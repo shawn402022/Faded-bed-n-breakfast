@@ -457,19 +457,19 @@ const validateQuery = [
     check('minLat')
         .optional()
         .isFloat({ min: 1.0})
-        .withMessage("Maximum Latitude is invalid"),
-    check('minLat')
+        .withMessage("Minimum Latitude is invalid"),
+    check('maxLat')
         .optional()
         .isFloat({ max:12.0})
-        .withMessage("Minimum Latitude is invalid"),
+        .withMessage("Maximum Latitude is invalid"),
     check('minLng')
         .optional()
         .isFloat({ min: 1.0})
-        .withMessage("Maximum Longitude is invalid"),
-    check('lng')
+        .withMessage("Minimum Longitude is invalid"),
+    check('maxLat')
         .optional()
         .isFloat({ max: 90.0 })
-        .withMessage("Minimum Longitude is invalid"),
+        .withMessage("Maximum Longitude is invalid"),
     check('price')
         .optional()
         .isFloat({ max: 0 })
