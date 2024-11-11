@@ -119,7 +119,7 @@ router.post('/:spotId/bookings', requireAuth, async (req,res) => {
         };
         res.status(403).json(err);
     }
-    
+
     //create new booking
     const newBooking = await Booking.create({startDate,endDate, userId, spotId});
 
@@ -155,7 +155,7 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     const spotId = req.params.spotId
     //create new spotImage
     const newImage = await SpotImage.create({url, preview, spotId});
-    
+
     //get all preview images
     const previews =await spot.getSpotImages({
         where:{
@@ -169,7 +169,7 @@ router.post('/:spotId/images',requireAuth, restoreUser, async(req,res)=>{
     //assign array of urls to previewImage
     spot.previewImage = urls;
     await spot.save();
-      
+
     //response
     const response = {
         id: newImage.id,
@@ -215,7 +215,7 @@ router.post('/:spotId/reviews', requireAuth, async (req,res) => {
         spot.avgRating = avgRating; // Update average rating
         await spot.save(); // Save changes made to DB
     }
-    
+
     //response
     const response = {
         id: newReview.id,
@@ -445,31 +445,62 @@ router.delete('/:spotId/image/:imageId', requireAuth, async (req, res) => {
     return res.status(200).json({message:"Successfully deleted"})
 })
 
+const validateQuery = [
+    check('page')
+        .optional()
+        .isFloat({ min: 1 })
+        .withMessage("Page must be greater than or equal to 1"),
+    check('size')
+        .optional()
+        .isFloat({ min: 1 })
+        .withMessage("Size must be greater than or equal to 1"),
+    check('minLat')
+        .optional()
+        .isFloat({ min: 1.0})
+        .withMessage("Maximum Latitude is invalid"),
+    check('minLat')
+        .optional()
+        .isFloat({ max:12.0})
+        .withMessage("Minimum Latitude is invalid"),
+    check('minLng')
+        .optional()
+        .isFloat({ min: 1.0})
+        .withMessage("Maximum Longitude is invalid"),
+    check('lng')
+        .optional()
+        .isFloat({ max: 90.0 })
+        .withMessage("Minimum Longitude is invalid"),
+    check('price')
+        .optional()
+        .isFloat({ max: 0 })
+        .withMessage("Maximum Price must be greater than or equal to 0"),
+    handleValidationErrors
+]
+
+
 //get all spots
-router.get('/', async (req,res)=> {
+router.get('/', validateQuery, async (req, res) => {
+    let { page, size, minLat, maxLat, minLng, maxLng, minPrice, maxPrice } = req.query;
 
-    let {page, size} = req.query
+    // Set defaults and parse values
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 20;
 
-    if(!page) page = 1;
-    if(!size) page = 20;
+    const pagination = {
+        limit: size,
+        offset: size * (page - 1),
 
-    page = parseInt(page);
-    size = parseInt(size);
-
-    const pagination = {}
-
-    if(page >= 1 && size >= 1) {
-        pagination.limit = size;
-        pagination.offset = size * (page -1)
-    }
-
-    //get all spots
-    const allSpots = await Spot.findAll({...pagination});
+    };
 
 
 
+    const allSpots = await Spot.findAll(pagination);
 
-    res.status(200).json(allSpots);
-})
+    res.json({
+        Spots: allSpots,
+        page,
+        size
+    });
+});
 
 module.exports = router
