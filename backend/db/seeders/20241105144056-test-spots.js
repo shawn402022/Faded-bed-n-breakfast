@@ -1,6 +1,5 @@
 'use strict';
 
-const { Spot } = require('../models');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -9,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await Spot.bulkCreate([
+    await Spots.bulkCreate([
       {
         "ownerId": 1,
         "address": "123 Disney Lane",
