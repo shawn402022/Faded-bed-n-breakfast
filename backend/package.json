@@ -9,13 +9,15 @@
     "start": "node -r dotenv/config ./bin/www",
     "start:development": "nodemon ./bin/www",
     "start:production": "node ./bin/www",
-    "build": "node psql-setup-script.js"
+    "build": "node psql-setup-script.js",
+    "dev": "npm run start:development"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cd": "^0.3.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "csurf": "^1.11.0",
@@ -26,6 +28,7 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "norbert-slater-bed-and-breakfast": "file:..",
     "per-env": "^1.0.2",
     "pg": "^8.13.1",
     "sequelize": "^6.37.5",
